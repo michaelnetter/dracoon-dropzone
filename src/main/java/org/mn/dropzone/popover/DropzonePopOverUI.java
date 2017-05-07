@@ -266,37 +266,14 @@ public class DropzonePopOverUI extends PopOver {
 		if (db.hasFiles()) {
 			success = true;
 
-			// request passsword if cntr is pressed
 			if (popOver.isCtrlKeyPressed()) {
-				showPasswordDialog();
-			}
-
-			if (shareLinkPassword.isEmpty()) {
-				popOver.notifyDragEventListener(new DropzoneDragEvent(e, "", false));
+				popOver.notifyDragEventListener(new DropzoneDragEvent(e, true));
 			} else {
-				popOver.notifyDragEventListener(new DropzoneDragEvent(e, shareLinkPassword, true));
+				popOver.notifyDragEventListener(new DropzoneDragEvent(e, false));
 			}
 		}
 		e.setDropCompleted(success);
 		e.consume();
-	}
-
-	/**
-	 * Show password dialog if enabled
-	 */
-	private void showPasswordDialog() {
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-				JPasswordField pf = new JPasswordField();
-				int option = JOptionPane.showConfirmDialog(null, pf, I18n.get("main.start.sharelinkpwd"),
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-				if (option == JOptionPane.OK_OPTION) {
-					shareLinkPassword = new String(pf.getPassword());
-				}
-			}
-		});
 	}
 
 	/**

@@ -1,8 +1,6 @@
 package org.mn.dropzone.rest;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import javax.swing.event.EventListenerList;
 
@@ -19,12 +17,11 @@ import org.mn.dropzone.util.ConfigIO;
  *
  */
 public class CreateSharelinkTask implements Runnable {
-	private List<File> files;
 	private RestClient restClient;
 	private ConfigIO cfg;
-	private boolean isPasswordProtected;
 	private long nodeId;
 	private String password;
+	private boolean isPasswordProtected;
 
 	public CreateSharelinkTask(long nodeId, boolean isPasswordProtected, String password) {
 		this.nodeId = nodeId;

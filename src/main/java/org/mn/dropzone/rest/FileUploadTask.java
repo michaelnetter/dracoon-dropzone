@@ -25,10 +25,14 @@ public class FileUploadTask implements Runnable {
 	private List<File> files;
 	private RestClient restClient;
 	private ConfigIO cfg;
+	private String password;
+	private boolean isPwdProtected;
 	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yy-MM-dd HH-mm-SS");
 
-	public FileUploadTask(List<File> files) {
+	public FileUploadTask(List<File> files, boolean isPasswordProtected, String password) {
 		this.files = files;
+		this.isPwdProtected = isPasswordProtected;
+		this.password = password;
 		this.restClient = RestClient.getInstance();
 		this.cfg = ConfigIO.getInstance();
 	}
@@ -40,7 +44,7 @@ public class FileUploadTask implements Runnable {
 			// login
 			boolean loginSuccessful = restClient.login();
 			if (!loginSuccessful) {
-				notifyUploadEventListener(new UploadEvent(this, Status.FAILED, -1));
+				notifyUploadEventListener(new UploadEvent(this, Status.FAILED, -1, isPwdProtected, password));
 				return;
 			}
 			String token = cfg.getAuthToken();
@@ -73,10 +77,10 @@ public class FileUploadTask implements Runnable {
 			}
 
 			// notify listener
-			notifyUploadEventListener(new UploadEvent(this, Status.SUCCESS, nodeId));
+			notifyUploadEventListener(new UploadEvent(this, Status.SUCCESS, nodeId, isPwdProtected, password));
 
 		} catch (IOException e) {
-			notifyUploadEventListener(new UploadEvent(this, Status.FAILED, -1));
+			notifyUploadEventListener(new UploadEvent(this, Status.FAILED, -1, isPwdProtected, password));
 		}
 	}
 

@@ -98,9 +98,14 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	@Override
 	public void handleDragEvent(DropzoneDragEvent e) {
 		List<File> files = e.getEvent().getDragboard().getFiles();
+		String pwd = "";
+		boolean isPwdProtected = e.isAskForPassword();
+		if (e.isAskForPassword()) {
+			pwd = showPasswordDialog();
+		}
 
 		if (files != null && !files.isEmpty()) {
-			FileUploadTask uploadTask = new FileUploadTask(files);
+			FileUploadTask uploadTask = new FileUploadTask(files, isPwdProtected, pwd);
 			uploadTask.addUploadEventListener(this);
 			Thread thread = new Thread(uploadTask);
 			thread.start();
@@ -112,15 +117,17 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	 */
 	@Override
 	public void handleUploadEvent(UploadEvent e) {
-
 		// show error message if upload was unsuccessful
-		if (e.getStatus() == Status.FAILED) {
+		if (e.getStatus() == Status.FAILED || e.getNodeId() < 0) {
 			dzPopOver.showMessage(I18n.get("dropzone.uploaderror"), Constants.ICON_ERROR, Constants.TEXT_COLOR_DEFAULT,
 					Constants.TEXT_SIZE_DEFAULT);
 		}
+		
+		boolean pwdProtected = e.isPasswordProtected();
+		String pwd = e.getPassword();
 
 		long nodeId = e.getNodeId();
-		CreateSharelinkTask sharelinkTask = new CreateSharelinkTask(nodeId, false, "");
+		CreateSharelinkTask sharelinkTask = new CreateSharelinkTask(nodeId, pwdProtected, pwd);
 		sharelinkTask.addSharelinkEventListener(this);
 		Thread thread = new Thread(sharelinkTask);
 		thread.start();
@@ -132,11 +139,11 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	@Override
 	public void handleSharelinkEvent(SharelinkEvent e) {
 		// show error message if no share lin was created
-		if (e.getStatus() == Status.FAILED) {
-			dzPopOver.showMessage(I18n.get("dropzone.sharelinkerror"), Constants.ICON_ERROR, Constants.TEXT_COLOR_DEFAULT,
-					Constants.TEXT_SIZE_DEFAULT);
+		if (e.getStatus() == Status.FAILED || e.getSharelink() == null) {
+			dzPopOver.showMessage(I18n.get("dropzone.sharelinkerror"), Constants.ICON_ERROR,
+					Constants.TEXT_COLOR_DEFAULT, Constants.TEXT_SIZE_DEFAULT);
 		}
-		
+
 		DownloadShare sharelink = e.getSharelink();
 		String serverUrl = ConfigIO.getInstance().getServerUrl();
 		String link = serverUrl + "/#/public/shares-downloads/" + sharelink.accessKey;
@@ -149,6 +156,21 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		// show success message
 		dzPopOver.showMessage(I18n.get("dropzone.sharelinkcreated"), Constants.ICON_OK, Constants.TEXT_COLOR_DEFAULT,
 				Constants.TEXT_SIZE_DEFAULT);
+	}
+
+	/**
+	 * Show password dialog if enabled
+	 */
+	private String showPasswordDialog() {
+		String shareLinkPassword = "";
+		JPasswordField pf = new JPasswordField();
+		int option = JOptionPane.showConfirmDialog(null, pf, I18n.get("main.start.sharelinkpwd"),
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		if (option == JOptionPane.OK_OPTION) {
+			shareLinkPassword = new String(pf.getPassword());
+		}
+		return shareLinkPassword;
+
 	}
 
 	public static void main(String[] args) {

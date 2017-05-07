@@ -13,26 +13,20 @@ public class DropzoneDragEvent extends EventObject {
 
 	private static final long serialVersionUID = 1L;
 	private DragEvent event;
-	private boolean isPasswordProtected;
-	private String password;
+	private boolean askForPassword;
 
-	public DropzoneDragEvent(DragEvent source, String password, boolean isPasswordProtected) {
+	public DropzoneDragEvent(DragEvent source, boolean askForPassword) {
 		super(source);
 		this.event = source;
-		this.isPasswordProtected = isPasswordProtected;
-		this.password = password;
+		this.askForPassword = askForPassword;
+
 	}
 
 	public DragEvent getEvent() {
 		return event;
 	}
 
-	public boolean isPasswordProtected() {
-		return isPasswordProtected;
+	public boolean isAskForPassword() {
+		return askForPassword;
 	}
-
-	public String getPassword() {
-		return password;
-	}
-
 }
