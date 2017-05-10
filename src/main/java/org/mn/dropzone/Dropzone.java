@@ -1,6 +1,7 @@
 package org.mn.dropzone;
 
 import java.awt.AWTException;
+import java.awt.BorderLayout;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
@@ -10,10 +11,14 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
+import org.mn.dropzone.Constants.OSType;
 import org.mn.dropzone.eventlistener.DropzoneDragEvent;
 import org.mn.dropzone.eventlistener.DropzoneDragEventListener;
 import org.mn.dropzone.eventlistener.SharelinkEvent;
@@ -63,9 +68,16 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	private void showMasterPasswordEntry() {
 		ConfigIO cfg = ConfigIO.getInstance();
 		if (cfg.isMasterPwdEnabled()) {
+			JPanel panel = new JPanel(new BorderLayout());
 			JPasswordField pf = new JPasswordField();
-			int option = JOptionPane.showConfirmDialog(null, pf, I18n.get("main.start.requestmasterpwd"),
+			panel.setBorder(new EmptyBorder(0, 10, 0, 10));
+			panel.add(pf, BorderLayout.CENTER);
+			JFrame frame = new JFrame();
+			frame.setAlwaysOnTop(true);
+			
+			int option = JOptionPane.showConfirmDialog(frame, pf, I18n.get("main.start.requestmasterpwd"),
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			frame.dispose();
 			if (option == JOptionPane.OK_OPTION) {
 				cfg.setMasterPassword(new String(pf.getPassword()));
 			} else {
@@ -79,6 +91,10 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	 */
 	private void initUI() {
 		URL url = Dropzone.class.getResource("/images/sds_logo.png");
+		if (Util.getOSType() == OSType.MACOS) {
+			url = Dropzone.class.getResource("/images/sds_logo_mac.png");
+		}
+
 		trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(url), I18n.get("tray.appname"),
 				new TrayPopupMenu());
 		trayIcon.setImageAutoSize(true);
@@ -102,6 +118,9 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		boolean isPwdProtected = e.isAskForPassword();
 		if (e.isAskForPassword()) {
 			pwd = showPasswordDialog();
+			if (pwd == null) {
+				isPwdProtected = false;
+			}
 		}
 
 		if (files != null && !files.isEmpty()) {
@@ -119,10 +138,10 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	public void handleUploadEvent(UploadEvent e) {
 		// show error message if upload was unsuccessful
 		if (e.getStatus() == Status.FAILED || e.getNodeId() < 0) {
-			dzPopOver.showMessage(I18n.get("dropzone.uploaderror"), Constants.ICON_ERROR, Constants.TEXT_COLOR_DEFAULT,
-					Constants.TEXT_SIZE_DEFAULT);
+			dzPopOver.showMessage(I18n.get("dropzone.uploaderror"), Constants.ICON_ERROR, DropzonePopOver.TEXT_COLOR_DEFAULT,
+					DropzonePopOver.POPOVER_TEXT_SIZE_DEFAULT);
 		}
-		
+
 		boolean pwdProtected = e.isPasswordProtected();
 		String pwd = e.getPassword();
 
@@ -141,7 +160,7 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		// show error message if no share lin was created
 		if (e.getStatus() == Status.FAILED || e.getSharelink() == null) {
 			dzPopOver.showMessage(I18n.get("dropzone.sharelinkerror"), Constants.ICON_ERROR,
-					Constants.TEXT_COLOR_DEFAULT, Constants.TEXT_SIZE_DEFAULT);
+					DropzonePopOver.TEXT_COLOR_DEFAULT, DropzonePopOver.POPOVER_TEXT_SIZE_DEFAULT);
 		}
 
 		DownloadShare sharelink = e.getSharelink();
@@ -154,23 +173,29 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		clpbrd.setContents(stringSelection, null);
 
 		// show success message
-		dzPopOver.showMessage(I18n.get("dropzone.sharelinkcreated"), Constants.ICON_OK, Constants.TEXT_COLOR_DEFAULT,
-				Constants.TEXT_SIZE_DEFAULT);
+		dzPopOver.showMessage(I18n.get("dropzone.sharelinkcreated"), Constants.ICON_OK, DropzonePopOver.TEXT_COLOR_DEFAULT,
+				DropzonePopOver.POPOVER_TEXT_SIZE_DEFAULT);
 	}
 
 	/**
 	 * Show password dialog if enabled
 	 */
 	private String showPasswordDialog() {
-		String shareLinkPassword = "";
+		JPanel panel = new JPanel(new BorderLayout());
 		JPasswordField pf = new JPasswordField();
-		int option = JOptionPane.showConfirmDialog(null, pf, I18n.get("main.start.sharelinkpwd"),
+		panel.setBorder(new EmptyBorder(0, 10, 0, 10));
+		panel.add(pf, BorderLayout.CENTER);		
+		JFrame frame = new JFrame();
+		frame.setAlwaysOnTop(true);
+		
+		int option = JOptionPane.showConfirmDialog(frame, pf, I18n.get("main.start.sharelinkpwd"),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+		frame.dispose();
 		if (option == JOptionPane.OK_OPTION) {
-			shareLinkPassword = new String(pf.getPassword());
+			return new String(pf.getPassword());
+		} else {
+			return null;
 		}
-		return shareLinkPassword;
-
 	}
 
 	public static void main(String[] args) {

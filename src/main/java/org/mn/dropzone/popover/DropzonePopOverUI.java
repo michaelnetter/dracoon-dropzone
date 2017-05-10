@@ -3,12 +3,7 @@ package org.mn.dropzone.popover;
 import java.awt.Point;
 import java.util.logging.Handler;
 
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
-import javax.swing.SwingUtilities;
-
 import org.controlsfx.control.PopOver;
-import org.mn.dropzone.Constants;
 import org.mn.dropzone.eventlistener.DropzoneDragEvent;
 import org.mn.dropzone.i18n.I18n;
 import org.mn.dropzone.util.Util;
@@ -39,7 +34,6 @@ public class DropzonePopOverUI extends PopOver {
 	private DropzonePopOver popOver;
 
 	private static final int ANIMATION_TIME = 100; // in ms
-	private String shareLinkPassword;
 
 	public DropzonePopOverUI(DropzonePopOver popOver) {
 		this.popOver = popOver;
@@ -62,7 +56,7 @@ public class DropzonePopOverUI extends PopOver {
 		setFadeInDuration(new Duration(ANIMATION_TIME));
 		setAutoFix(true);
 		setHeaderAlwaysVisible(true);
-		setOpacity(0.95);
+		setOpacity(DropzonePopOver.POPOVER_OPACITY);
 		arrowSizeProperty().bind(new SimpleDoubleProperty(10));
 		arrowIndentProperty().bind(new SimpleDoubleProperty(40));
 		cornerRadiusProperty().bind(new SimpleDoubleProperty(0));
@@ -154,7 +148,7 @@ public class DropzonePopOverUI extends PopOver {
 		});
 
 		try {
-			Thread.sleep(Constants.POPOVER_DURATION);
+			Thread.sleep(DropzonePopOver.POPOVER_DURATION);
 		} catch (InterruptedException e) {
 
 		}
@@ -188,11 +182,13 @@ public class DropzonePopOverUI extends PopOver {
 			String msg = I18n.get("dropzone.releasemouse");
 			ImageView icon = new ImageView(
 					DropzoneDragEvent.class.getResource("/images/drop_icon_dark.png").toString());
-			label = createPopoverContent(msg, icon, Constants.TEXT_COLOR_HOVERED, Constants.TEXT_SIZE_LARGE);
+			label = createPopoverContent(msg, icon, DropzonePopOver.TEXT_COLOR_HOVERED,
+					DropzonePopOver.POPOVER_TEXT_SIZE_LARGE);
 		} else {
 			String msg = I18n.get("dropzone.drophere");
 			ImageView icon = new ImageView(DropzoneDragEvent.class.getResource("/images/drop_icon.png").toString());
-			label = createPopoverContent(msg, icon, Constants.TEXT_COLOR_DEFAULT, Constants.TEXT_SIZE_LARGE);
+			label = createPopoverContent(msg, icon, DropzonePopOver.TEXT_COLOR_DEFAULT,
+					DropzonePopOver.POPOVER_TEXT_SIZE_LARGE);
 		}
 		return label;
 	}
@@ -261,11 +257,9 @@ public class DropzonePopOverUI extends PopOver {
 	private void mouseDragDropped(final DragEvent e) {
 		final Dragboard db = e.getDragboard();
 		boolean success = false;
-		shareLinkPassword = "";
 
 		if (db.hasFiles()) {
 			success = true;
-
 			if (popOver.isCtrlKeyPressed()) {
 				popOver.notifyDragEventListener(new DropzoneDragEvent(e, true));
 			} else {
@@ -285,7 +279,7 @@ public class DropzonePopOverUI extends PopOver {
 	private void mouseDragOver(final DragEvent e) {
 		final Dragboard db = e.getDragboard();
 		if (db.hasFiles()) {
-			e.acceptTransferModes(TransferMode.ANY);
+			e.acceptTransferModes(TransferMode.ANY);		
 			setContentNode(createPopoverContent(true));
 		}
 	}

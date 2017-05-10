@@ -56,6 +56,7 @@ public class SettingsDialog extends JPanel {
 	private void initUI() {
 		UIManager.put("OptionPane.border", new EmptyBorder(0, 0, 10, 0));
 
+
 		this.setLayout(new BorderLayout(0, 10));
 		this.add(createHeader(), BorderLayout.NORTH);
 		this.add(createCredentialsInput(), BorderLayout.SOUTH);

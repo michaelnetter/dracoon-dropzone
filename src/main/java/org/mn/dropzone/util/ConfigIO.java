@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.mn.dropzone.Constants.OSType;
 import org.mn.dropzone.model.ScreenPosition.Pos;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -264,13 +265,13 @@ public class ConfigIO {
 	 * @return
 	 */
 	private static String getConfigPath() {
+		OSType type = Util.getOSType();
 		String path = "";
-		String OS = System.getProperty("os.name").toUpperCase();
-		if (OS.contains("WIN")) {
+		if (type == OSType.WINDOWS) {
 			path = System.getenv("APPDATA");
-		} else if (OS.contains("MAC")) {
+		} else if (type == OSType.MACOS) {
 			path = System.getProperty("user.home") + "/Library/";
-		} else if (OS.contains("NUX")) {
+		} else if (type == OSType.UNIX) {
 			path = System.getProperty("user.home");
 		} else {
 			path = System.getProperty("user.dir");

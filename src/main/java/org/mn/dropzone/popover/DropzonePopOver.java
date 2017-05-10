@@ -27,8 +27,17 @@ import javafx.scene.paint.Color;
  */
 public class DropzonePopOver implements NativeMouseInputListener, NativeKeyListener {
 
-	public static final int WIDTH = 400;
-	public static final int HEIGHT = 190;
+	public static final int WIDTH = 330;
+	public static final int HEIGHT = 140;
+	
+	public static final int POPOVER_TEXT_SIZE_DEFAULT = 12;
+	public static final int POPOVER_TEXT_SIZE_LARGE = 16;
+	public static final double POPOVER_OPACITY = 0.88;
+
+	public static final Color TEXT_COLOR_DEFAULT = Color.rgb(220, 220, 220);
+	public static final Color TEXT_COLOR_HOVERED = Color.rgb(120, 120, 120);
+	
+	public static final int POPOVER_DURATION = 3500;
 
 	private JFXPanel fxPanel;
 	private DropzonePopOverUI popOverUI;
@@ -136,7 +145,9 @@ public class DropzonePopOver implements NativeMouseInputListener, NativeKeyListe
 	}
 
 	@Override
-	public void nativeMouseReleased(NativeMouseEvent nativeEvent) {
+	public void nativeMouseReleased(NativeMouseEvent nativeEvent) {	
+		// check if ctrl is pressed
+		isCtrlKeyPressed = (nativeEvent.getModifiers() & NativeKeyEvent.CTRL_MASK) > 0;
 		popOverUI.hidePopOver();
 	}
 

@@ -9,6 +9,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.controlsfx.control.PopOver.ArrowLocation;
 import org.jnativehook.mouse.NativeMouseEvent;
+import org.mn.dropzone.Constants.OSType;
 import org.mn.dropzone.i18n.I18n;
 import org.mn.dropzone.model.ScreenModel;
 import org.mn.dropzone.model.ScreenPosition;
@@ -330,4 +331,23 @@ public class Util {
 		return positions;
 	}
 
+	/**
+	 * Returns the current operating system type
+	 * 
+	 * @return
+	 */
+	public static OSType getOSType() {
+		OSType type = null;
+		String OS = System.getProperty("os.name").toUpperCase();
+		if (OS.contains("WIN")) {
+			type = OSType.WINDOWS;
+		} else if (OS.contains("MAC")) {
+			type = OSType.MACOS;
+		} else if (OS.contains("NUX")) {
+			type = OSType.UNIX;
+		} else {
+			type = OSType.OTHER;
+		}
+		return type;
+	}
 }

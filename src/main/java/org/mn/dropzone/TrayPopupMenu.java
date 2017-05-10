@@ -5,6 +5,7 @@ import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.mn.dropzone.i18n.I18n;
@@ -45,8 +46,12 @@ public class TrayPopupMenu extends PopupMenu implements ActionListener {
 			System.exit(0);
 		} else if (e.getSource() == itemSettings) {
 			SettingsDialog dialog = new SettingsDialog();
-			int result = JOptionPane.showConfirmDialog(null, dialog, I18n.get("tray.settings"),
+			JFrame frame = new JFrame();
+			frame.setAlwaysOnTop(true);
+			int result = JOptionPane.showConfirmDialog(frame, dialog, I18n.get("tray.settings"),
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			frame.dispose();
+			
 			if (result == JOptionPane.OK_OPTION) {
 
 				String username = dialog.getUserName().getText();
@@ -61,12 +66,12 @@ public class TrayPopupMenu extends PopupMenu implements ActionListener {
 
 				ConfigIO cfg = ConfigIO.getInstance();
 				cfg.setUsername(username);
+				
 				// important: first set masterpwd
 				// and masterpwd enabled before
 				// setting the pwd
 				cfg.setMasterPwdEnabled(isMasterPwdEnabled);
 				cfg.setMasterPassword(masterPassword);
-
 				cfg.setPassword(password);
 				cfg.setServerUrl(serverUrl);
 				cfg.setStoragePath(storagePath);
