@@ -71,11 +71,11 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 			JPanel panel = new JPanel(new BorderLayout());
 			JPasswordField pf = new JPasswordField();
 			panel.setBorder(new EmptyBorder(0, 10, 0, 10));
-			panel.add(pf, BorderLayout.CENTER);
+			panel.add(pf, BorderLayout.NORTH);		
 			JFrame frame = new JFrame();
 			frame.setAlwaysOnTop(true);
 			
-			int option = JOptionPane.showConfirmDialog(frame, pf, I18n.get("main.start.requestmasterpwd"),
+			int option = JOptionPane.showConfirmDialog(frame, panel, I18n.get("main.start.requestmasterpwd"),
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			frame.dispose();
 			if (option == JOptionPane.OK_OPTION) {
@@ -184,11 +184,11 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		JPanel panel = new JPanel(new BorderLayout());
 		JPasswordField pf = new JPasswordField();
 		panel.setBorder(new EmptyBorder(0, 10, 0, 10));
-		panel.add(pf, BorderLayout.CENTER);		
+		panel.add(pf, BorderLayout.NORTH);		
 		JFrame frame = new JFrame();
 		frame.setAlwaysOnTop(true);
 		
-		int option = JOptionPane.showConfirmDialog(frame, pf, I18n.get("main.start.sharelinkpwd"),
+		int option = JOptionPane.showConfirmDialog(frame, panel, I18n.get("main.start.sharelinkpwd"),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		frame.dispose();
 		if (option == JOptionPane.OK_OPTION) {
