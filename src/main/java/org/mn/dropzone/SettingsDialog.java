@@ -24,12 +24,12 @@ import javax.swing.border.TitledBorder;
 import javax.swing.text.View;
 
 import org.mn.dropzone.i18n.I18n;
+import org.mn.dropzone.model.AuthModel;
 import org.mn.dropzone.model.ScreenModel;
 import org.mn.dropzone.model.ScreenPosition;
 import org.mn.dropzone.util.ConfigIO;
 import org.mn.dropzone.util.SwingUtil;
 import org.mn.dropzone.util.Util;
-
 
 /**
  * Dropzone for SDS
@@ -43,6 +43,7 @@ public class SettingsDialog extends JPanel {
 	private static final JLabel RESIZER = new JLabel();
 	private JTextField userInput, serverInput, pathInput;
 	private JComboBox<ScreenModel> screenBox;
+	private JComboBox<AuthModel> authBox;
 	private JComboBox<ScreenPosition> hotCornerBox;
 	private JCheckBox useMasterPasswordInput;
 	private JPasswordField masterPwdInput, pwdInput;
@@ -55,7 +56,6 @@ public class SettingsDialog extends JPanel {
 
 	private void initUI() {
 		UIManager.put("OptionPane.border", new EmptyBorder(0, 0, 10, 0));
-
 
 		this.setLayout(new BorderLayout(0, 10));
 		this.add(createHeader(), BorderLayout.NORTH);
@@ -100,13 +100,22 @@ public class SettingsDialog extends JPanel {
 			screenBoxModel.setSelectedItem(screen);
 			screenBox.setModel(screenBoxModel);
 		}
-		if (cfg.getScreenId() != null) {
-			ScreenPosition pos = Util.getScreenPosition(cfg.getScreenPositionId());
-			DefaultComboBoxModel<ScreenPosition> cornerBoxModel = new DefaultComboBoxModel<ScreenPosition>(
-					(ScreenPosition[]) Util.getScreenPositions());
-			cornerBoxModel.setSelectedItem(pos);
-			hotCornerBox.setModel(cornerBoxModel);
+
+		if (cfg.getAuthMethod() != null) {
+			AuthModel authModel = Util.getAuthModel(cfg.getAuthMethod());
+			DefaultComboBoxModel<AuthModel> authBoxModel = new DefaultComboBoxModel<AuthModel>(
+					(AuthModel[]) Util.getAuthMethods());
+			authBoxModel.setSelectedItem(authModel);
+			authBox.setModel(authBoxModel);
 		}
+
+		// set screen position
+		ScreenPosition pos = Util.getScreenPosition(cfg.getScreenPositionId());
+		DefaultComboBoxModel<ScreenPosition> cornerBoxModel = new DefaultComboBoxModel<ScreenPosition>(
+				(ScreenPosition[]) Util.getScreenPositions());
+		cornerBoxModel.setSelectedItem(pos);
+		hotCornerBox.setModel(cornerBoxModel);
+
 	}
 
 	private JPanel createHotCorners() {
@@ -171,6 +180,12 @@ public class SettingsDialog extends JPanel {
 		serverLabel.setLabelFor(serverInput);
 		credentialsPanel.add(serverInput);
 
+		JLabel authLabel = new JLabel(I18n.get("settings.authmethod"), JLabel.TRAILING);
+		credentialsPanel.add(authLabel);
+		authBox = new JComboBox<>();
+		authLabel.setLabelFor(authBox);
+		credentialsPanel.add(authBox);
+
 		JLabel pathLabel = new JLabel(I18n.get("settings.remotepath"), JLabel.TRAILING);
 		credentialsPanel.add(pathLabel);
 		pathInput = new JTextField();
@@ -213,7 +228,7 @@ public class SettingsDialog extends JPanel {
 		credentialsPanel.add(masterPwdInput);
 
 		// Lay out the panel.
-		SwingUtil.makeCompactGrid(credentialsPanel, 6, 2, // rows, cols
+		SwingUtil.makeCompactGrid(credentialsPanel, 7, 2, // rows, cols
 				6, 6, // initX, initY
 				6, 6); // xPad, yPad
 
@@ -293,6 +308,10 @@ public class SettingsDialog extends JPanel {
 
 	public ScreenPosition getSelectedScreenPosition() {
 		return (ScreenPosition) hotCornerBox.getSelectedItem();
+	}
+
+	public AuthModel getSelectedAuthMethod() {
+		return (AuthModel) authBox.getSelectedItem();
 	}
 
 	private void setMasterPwdInputEnabled(boolean enable) {

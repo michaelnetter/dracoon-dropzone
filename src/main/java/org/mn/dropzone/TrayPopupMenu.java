@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.mn.dropzone.i18n.I18n;
+import org.mn.dropzone.model.AuthModel;
 import org.mn.dropzone.model.ScreenModel;
 import org.mn.dropzone.model.ScreenPosition;
 import org.mn.dropzone.util.ConfigIO;
@@ -63,6 +64,7 @@ public class TrayPopupMenu extends PopupMenu implements ActionListener {
 
 				ScreenModel screenModel = dialog.getSelectedScreen();
 				ScreenPosition screenPos = dialog.getSelectedScreenPosition();
+				AuthModel authMethod = dialog.getSelectedAuthMethod();
 
 				ConfigIO cfg = ConfigIO.getInstance();
 				cfg.setUsername(username);
@@ -76,6 +78,7 @@ public class TrayPopupMenu extends PopupMenu implements ActionListener {
 				cfg.setServerUrl(serverUrl);
 				cfg.setStoragePath(storagePath);
 				cfg.setScreenId(screenModel.getIdString());
+				cfg.setAuthMethod(authMethod.getType().getId());
 				cfg.setScreenPositionId(String.valueOf(screenPos.getPos().getId()));
 				cfg.save();
 			}

@@ -110,7 +110,7 @@ public class RestClient {
 		LoginRequest loginRequest = new LoginRequest();
 		loginRequest.login = cfg.getUsername();
 		loginRequest.password = cfg.getPassword();
-		loginRequest.authType = "sql";
+		loginRequest.authType = cfg.getAuthMethod();
 		loginRequest.language = Locale.getDefault().getLanguage();
 
 		return loginInternal(loginRequest);

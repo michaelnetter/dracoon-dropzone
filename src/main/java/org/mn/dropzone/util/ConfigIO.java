@@ -26,6 +26,7 @@ public class ConfigIO {
 
 	private static final String USER_NAME = "dropzone.username";
 	private static final String SERVER_URL = "dropzone.serverurl";
+	private static final String AUTH_METHOD = "dropzone.authmethod";
 	private static final String STORAGE_PATH = "dropzone.storagepath";
 	private static final String SCREEN_ID = "dropzone.screenid";
 	private static final String SCREEN_POSITION_ID = "dropzone.screenposid";
@@ -59,6 +60,10 @@ public class ConfigIO {
 
 	public void setUsername(String value) {
 		PROP.setProperty(ConfigIO.USER_NAME, value);
+	}
+	
+	public void setAuthMethod(String value) {
+		PROP.setProperty(ConfigIO.AUTH_METHOD, value);
 	}
 
 	public void setPassword(String value) {
@@ -106,6 +111,11 @@ public class ConfigIO {
 	public String getUsername() {
 		return PROP.getProperty(ConfigIO.USER_NAME);
 	}
+	
+	public String getAuthMethod() {
+		return PROP.getProperty(ConfigIO.AUTH_METHOD);
+	}
+
 
 	public String getAuthToken() {
 		return authToken;
@@ -224,6 +234,7 @@ public class ConfigIO {
 		PROP = new Properties();
 		PROP.setProperty(ConfigIO.USER_NAME, "");
 		PROP.setProperty(ConfigIO.SERVER_URL, "");
+		PROP.setProperty(ConfigIO.AUTH_METHOD, "");
 		PROP.setProperty(ConfigIO.STORAGE_PATH, "");
 		PROP.setProperty(ConfigIO.SCREEN_ID, "");
 		PROP.setProperty(ConfigIO.SCREEN_POSITION_ID, String.valueOf(Pos.BOTTOM_RIGHT.getId()));

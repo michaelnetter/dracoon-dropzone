@@ -199,6 +199,7 @@
 							<mainClass>${mainClass}</mainClass>
 							<generateDiskImageFile>true</generateDiskImageFile>
 							<iconFile>src/main/resources/images/sds_logo_mac.icns</iconFile>
+							<LSUIElement>1</LSUIElement>
 						</configuration>
 						<executions>
 							<execution>

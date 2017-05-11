@@ -11,6 +11,8 @@ import org.controlsfx.control.PopOver.ArrowLocation;
 import org.jnativehook.mouse.NativeMouseEvent;
 import org.mn.dropzone.Constants.OSType;
 import org.mn.dropzone.i18n.I18n;
+import org.mn.dropzone.model.AuthModel;
+import org.mn.dropzone.model.AuthModel.Type;
 import org.mn.dropzone.model.ScreenModel;
 import org.mn.dropzone.model.ScreenPosition;
 import org.mn.dropzone.model.ScreenPosition.Pos;
@@ -309,6 +311,26 @@ public class Util {
 	}
 
 	/**
+	 * Returns the auth model for a given auth type
+	 * 
+	 * @return
+	 */
+	public static AuthModel getAuthModel(String id) {
+		AuthModel model = null;
+		AuthModel[] authMethods = getAuthMethods();
+		for (AuthModel auth : authMethods) {
+			if (auth.getType().getId().equals(id)) {
+				model = auth;
+				break;
+			}
+		}
+		if (model == null) {
+			return new AuthModel(Type.E_MAIL, I18n.get("settings.authmethod.email"));
+		}
+		return model;
+	}
+
+	/**
 	 * Returns the id of Pos.BOTTOM_RIGHT which is defined as default position
 	 * 
 	 * @return
@@ -329,6 +351,20 @@ public class Util {
 		positions[2] = new ScreenPosition(Pos.BOTTOM_LEFT, I18n.get("settings.position.bottomleft"));
 		positions[3] = new ScreenPosition(Pos.BOTTOM_RIGHT, I18n.get("settings.position.bottomright"));
 		return positions;
+	}
+
+	/**
+	 * Returns an array of all auth methods
+	 * 
+	 * @return
+	 */
+	public static AuthModel[] getAuthMethods() {
+		AuthModel[] authModels = new AuthModel[3];
+		authModels[0] = new AuthModel(AuthModel.Type.ACTIVE_DIRECTORY, I18n.get("settings.authmethod.ad"));
+		authModels[1] = new AuthModel(AuthModel.Type.E_MAIL, I18n.get("settings.authmethod.email"));
+		authModels[2] = new AuthModel(AuthModel.Type.RADIUS, I18n.get("settings.authmethod.radius"));
+
+		return authModels;
 	}
 
 	/**

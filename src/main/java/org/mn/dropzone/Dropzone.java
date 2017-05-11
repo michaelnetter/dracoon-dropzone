@@ -90,7 +90,7 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	 * Init Swing UI
 	 */
 	private void initUI() {
-		URL url = Dropzone.class.getResource("/images/sds_logo.png");
+		URL url = Dropzone.class.getResource("/images/kopie.png");
 		if (Util.getOSType() == OSType.MACOS) {
 			url = Dropzone.class.getResource("/images/sds_logo_mac.png");
 		}
