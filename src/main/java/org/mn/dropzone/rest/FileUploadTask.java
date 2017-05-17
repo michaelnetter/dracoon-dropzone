@@ -26,12 +26,13 @@ public class FileUploadTask implements Runnable {
 	private RestClient restClient;
 	private ConfigIO cfg;
 	private String password;
-	private boolean isPwdProtected;
+	private boolean isPwdProtected, isSetExpiration;
 	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yy-MM-dd HH-mm-SS");
 
-	public FileUploadTask(List<File> files, boolean isPasswordProtected, String password) {
+	public FileUploadTask(List<File> files, boolean isPasswordProtected, String password, boolean isSetExpiration) {
 		this.files = files;
 		this.isPwdProtected = isPasswordProtected;
+		this.isSetExpiration = isSetExpiration;
 		this.password = password;
 		this.restClient = RestClient.getInstance();
 		this.cfg = ConfigIO.getInstance();
@@ -44,7 +45,7 @@ public class FileUploadTask implements Runnable {
 			// login
 			boolean loginSuccessful = restClient.login();
 			if (!loginSuccessful) {
-				notifyUploadEventListener(new UploadEvent(this, Status.FAILED, -1, isPwdProtected, password));
+				notifyUploadEventListener(new UploadEvent(this, Status.FAILED, -1, isPwdProtected, password,isSetExpiration));
 				return;
 			}
 			String token = cfg.getAuthToken();
@@ -61,7 +62,7 @@ public class FileUploadTask implements Runnable {
 			for (File file : files) {
 				// open upload channel
 				FileUpload ulChannel = restClient.createUploadChannel(token, storagePathId, file.getName(),
-						file.length(), 1);
+						file.length(), 1, isSetExpiration);
 
 				// upload file
 				restClient.uploadFile(token, ulChannel.uploadId, file);
@@ -77,10 +78,10 @@ public class FileUploadTask implements Runnable {
 			}
 
 			// notify listener
-			notifyUploadEventListener(new UploadEvent(this, Status.SUCCESS, nodeId, isPwdProtected, password));
+			notifyUploadEventListener(new UploadEvent(this, Status.SUCCESS, nodeId, isPwdProtected, password,isSetExpiration));
 
 		} catch (IOException e) {
-			notifyUploadEventListener(new UploadEvent(this, Status.FAILED, -1, isPwdProtected, password));
+			notifyUploadEventListener(new UploadEvent(this, Status.FAILED, -1, isPwdProtected, password,isSetExpiration));
 		}
 	}
 

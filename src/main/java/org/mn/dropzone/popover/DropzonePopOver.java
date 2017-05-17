@@ -43,6 +43,7 @@ public class DropzonePopOver implements NativeMouseInputListener, NativeKeyListe
 	private DropzonePopOverUI popOverUI;
 
 	private boolean isCtrlKeyPressed = false;
+	private boolean isAltKeyPressed = false;
 
 	/**
 	 * 
@@ -106,6 +107,9 @@ public class DropzonePopOver implements NativeMouseInputListener, NativeKeyListe
 	public boolean isCtrlKeyPressed() {
 		return isCtrlKeyPressed;
 	}
+	public boolean isAltKeyPressed() {
+		return isAltKeyPressed;
+	}
 
 	/**
 	 * Show popover with given message and icon
@@ -148,6 +152,7 @@ public class DropzonePopOver implements NativeMouseInputListener, NativeKeyListe
 	public void nativeMouseReleased(NativeMouseEvent nativeEvent) {	
 		// check if ctrl is pressed
 		isCtrlKeyPressed = (nativeEvent.getModifiers() & NativeKeyEvent.CTRL_MASK) > 0;
+		isAltKeyPressed = (nativeEvent.getModifiers() & NativeKeyEvent.ALT_MASK) > 0;
 		popOverUI.hidePopOver();
 	}
 
@@ -174,12 +179,18 @@ public class DropzonePopOver implements NativeMouseInputListener, NativeKeyListe
 		if (nativeEvent.getKeyCode() == NativeKeyEvent.VC_CONTROL) {
 			isCtrlKeyPressed = true;
 		}
+		if (nativeEvent.getKeyCode() == NativeKeyEvent.VC_ALT) {
+			isAltKeyPressed = true;
+		}
 	}
 
 	@Override
 	public void nativeKeyReleased(NativeKeyEvent nativeEvent) {
 		if (nativeEvent.getKeyCode() == NativeKeyEvent.VC_CONTROL) {
 			isCtrlKeyPressed = false;
+		}
+		if (nativeEvent.getKeyCode() == NativeKeyEvent.VC_ALT) {
+			isAltKeyPressed = false;
 		}
 	}
 

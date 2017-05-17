@@ -61,6 +61,7 @@ public class TrayPopupMenu extends PopupMenu implements ActionListener {
 				String password = new String(dialog.getPassword().getPassword());
 				String masterPassword = new String(dialog.getMasterPwd().getPassword());
 				boolean isMasterPwdEnabled = dialog.isMasterPwdEnabled();
+				boolean isUseDarkIcon = dialog.isUseDarkIcon();
 
 				ScreenModel screenModel = dialog.getSelectedScreen();
 				ScreenPosition screenPos = dialog.getSelectedScreenPosition();
@@ -80,6 +81,7 @@ public class TrayPopupMenu extends PopupMenu implements ActionListener {
 				cfg.setScreenId(screenModel.getIdString());
 				cfg.setAuthMethod(authMethod.getType().getId());
 				cfg.setScreenPositionId(String.valueOf(screenPos.getPos().getId()));
+				cfg.setUseDarkIcon(isUseDarkIcon);
 				cfg.save();
 			}
 		}

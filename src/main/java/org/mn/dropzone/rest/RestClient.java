@@ -9,7 +9,11 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -18,6 +22,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import org.mn.dropzone.Constants;
 import org.mn.dropzone.rest.model.AuthToken;
 import org.mn.dropzone.rest.model.CompleteFileUploadRequest;
 import org.mn.dropzone.rest.model.CreateDownloadShareRequest;
@@ -25,6 +30,7 @@ import org.mn.dropzone.rest.model.CreateFileUploadRequest;
 import org.mn.dropzone.rest.model.CreateFolderRequest;
 import org.mn.dropzone.rest.model.CreateRoomRequest;
 import org.mn.dropzone.rest.model.DownloadShare;
+import org.mn.dropzone.rest.model.Expiration;
 import org.mn.dropzone.rest.model.FileUpload;
 import org.mn.dropzone.rest.model.LoginRequest;
 import org.mn.dropzone.rest.model.Node;
@@ -32,6 +38,7 @@ import org.mn.dropzone.rest.model.NodeList;
 import org.mn.dropzone.rest.model.UserAccount;
 import org.mn.dropzone.util.ConfigIO;
 import org.mn.dropzone.util.TLSSocketFactory;
+import org.mn.dropzone.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -279,12 +286,20 @@ public class RestClient {
 	 * @throws IOException
 	 */
 	public FileUpload createUploadChannel(String token, long parentId, String fileName, long fileSize,
-			int classification) throws IOException {
+			int classification, boolean isSetExpiration) throws IOException {
 		CreateFileUploadRequest uploadRequest = new CreateFileUploadRequest();
 		uploadRequest.parentId = parentId;
 		uploadRequest.name = fileName;
 		uploadRequest.size = fileSize;
 		uploadRequest.classification = classification;
+
+		if (isSetExpiration) {
+			Expiration expiration = new Expiration();
+
+			expiration.enableExpiration = isSetExpiration;
+			expiration.expireAt = Util.formatExpirationDate(Util.getDaysFromNow(Constants.EXPIRATION_PERIOD));
+			uploadRequest.expiration = expiration;
+		}
 
 		Call<FileUpload> call = sdsService.createFileUpload(token, uploadRequest);
 		Response<FileUpload> response = call.execute();
@@ -336,17 +351,26 @@ public class RestClient {
 	 * @param nodeId
 	 * @param passwordProtected
 	 * @param password
+	 * @param isSetExpiration
 	 * @return <{@link DownloadShare}
 	 * @throws IOException
 	 */
-	public DownloadShare createSharelink(String token, long nodeId, boolean passwordProtected, String password)
-			throws IOException {
+	public DownloadShare createSharelink(String token, long nodeId, boolean passwordProtected, String password,
+			boolean isSetExpiration) throws IOException {
 		CreateDownloadShareRequest request = new CreateDownloadShareRequest();
 		request.nodeId = nodeId;
 		request.notifyCreator = false;
 		request.sendMail = false;
 		if (passwordProtected) {
 			request.password = password;
+		}
+
+		if (isSetExpiration) {
+			Expiration expiration = new Expiration();
+
+			expiration.enableExpiration = isSetExpiration;
+			expiration.expireAt = Util.formatExpirationDate(Util.getDaysFromNow(Constants.EXPIRATION_PERIOD));
+			request.expiration = expiration;
 		}
 
 		Call<DownloadShare> call = sdsService.createDownloadShare(token, request);

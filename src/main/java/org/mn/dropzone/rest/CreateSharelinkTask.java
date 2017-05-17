@@ -21,11 +21,12 @@ public class CreateSharelinkTask implements Runnable {
 	private ConfigIO cfg;
 	private long nodeId;
 	private String password;
-	private boolean isPasswordProtected;
+	private boolean isPasswordProtected,isSetExpiration;
 
-	public CreateSharelinkTask(long nodeId, boolean isPasswordProtected, String password) {
+	public CreateSharelinkTask(long nodeId, boolean isPasswordProtected, String password, boolean isSetExpiration) {
 		this.nodeId = nodeId;
 		this.isPasswordProtected = isPasswordProtected;
+		this.isSetExpiration =isSetExpiration;
 		this.password = password;
 		this.restClient = RestClient.getInstance();
 		this.cfg = ConfigIO.getInstance();
@@ -43,7 +44,7 @@ public class CreateSharelinkTask implements Runnable {
 			String token = cfg.getAuthToken();
 
 			// create sharelink
-			DownloadShare sharelink = restClient.createSharelink(token, nodeId, isPasswordProtected, password);
+			DownloadShare sharelink = restClient.createSharelink(token, nodeId, isPasswordProtected, password,isSetExpiration);
 
 			// notify listener
 			notifySharelinkEventListener(new SharelinkEvent(this, Status.SUCCESS, sharelink));

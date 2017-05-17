@@ -260,11 +260,11 @@ public class DropzonePopOverUI extends PopOver {
 
 		if (db.hasFiles()) {
 			success = true;
-			if (popOver.isCtrlKeyPressed()) {
-				popOver.notifyDragEventListener(new DropzoneDragEvent(e, true));
-			} else {
-				popOver.notifyDragEventListener(new DropzoneDragEvent(e, false));
-			}
+			boolean ctrlKeyPressed = popOver.isCtrlKeyPressed();
+			boolean altKeyPressed = popOver.isAltKeyPressed();
+			
+			popOver.notifyDragEventListener(new DropzoneDragEvent(e, ctrlKeyPressed, altKeyPressed));
+
 		}
 		e.setDropCompleted(success);
 		e.consume();
@@ -279,7 +279,7 @@ public class DropzonePopOverUI extends PopOver {
 	private void mouseDragOver(final DragEvent e) {
 		final Dragboard db = e.getDragboard();
 		if (db.hasFiles()) {
-			e.acceptTransferModes(TransferMode.ANY);		
+			e.acceptTransferModes(TransferMode.ANY);
 			setContentNode(createPopoverContent(true));
 		}
 	}

@@ -19,6 +19,8 @@ public class Constants {
 	public static final ImageView ICON_OK = new ImageView(
 			DropzonePopOver.class.getResource("/images/drop_ok.png").toString());
 
+	public static final int EXPIRATION_PERIOD = 14; // days
+
 	public static enum OSType {
 		WINDOWS, MACOS, UNIX, OTHER;
 	}

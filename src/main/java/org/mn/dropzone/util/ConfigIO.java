@@ -32,6 +32,7 @@ public class ConfigIO {
 	private static final String SCREEN_POSITION_ID = "dropzone.screenposid";
 	private static final String USE_MASTER_PWD = "dropzone.usemasterpwd";
 	private static final String ACCESS_PWD = "dropzone.password";
+	private static final String USE_DARK_ICON = "dropzone.darkicon";
 
 	private String masterPassword;
 	private String authToken;
@@ -61,7 +62,7 @@ public class ConfigIO {
 	public void setUsername(String value) {
 		PROP.setProperty(ConfigIO.USER_NAME, value);
 	}
-	
+
 	public void setAuthMethod(String value) {
 		PROP.setProperty(ConfigIO.AUTH_METHOD, value);
 	}
@@ -111,11 +112,18 @@ public class ConfigIO {
 	public String getUsername() {
 		return PROP.getProperty(ConfigIO.USER_NAME);
 	}
-	
+
 	public String getAuthMethod() {
 		return PROP.getProperty(ConfigIO.AUTH_METHOD);
 	}
 
+	public boolean isUseDarkIcon() {
+		return Boolean.parseBoolean(PROP.getProperty(ConfigIO.USE_DARK_ICON));
+	}
+
+	public void setUseDarkIcon(boolean value) {
+		PROP.setProperty(ConfigIO.USE_DARK_ICON, String.valueOf(value));
+	}
 
 	public String getAuthToken() {
 		return authToken;
@@ -240,6 +248,13 @@ public class ConfigIO {
 		PROP.setProperty(ConfigIO.SCREEN_POSITION_ID, String.valueOf(Pos.BOTTOM_RIGHT.getId()));
 		PROP.setProperty(ConfigIO.USE_MASTER_PWD, "false");
 		PROP.setProperty(ConfigIO.ACCESS_PWD, "");
+
+		// set default icon color
+		if (Util.getOSType() == OSType.WINDOWS) {
+			PROP.setProperty(ConfigIO.USE_DARK_ICON, "false");
+		} else {
+			PROP.setProperty(ConfigIO.USE_DARK_ICON, "true");
+		}
 	}
 
 	/**

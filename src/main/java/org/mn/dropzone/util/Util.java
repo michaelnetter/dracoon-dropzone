@@ -3,12 +3,18 @@ package org.mn.dropzone.util;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.controlsfx.control.PopOver.ArrowLocation;
 import org.jnativehook.mouse.NativeMouseEvent;
+import org.mn.dropzone.Constants;
 import org.mn.dropzone.Constants.OSType;
 import org.mn.dropzone.i18n.I18n;
 import org.mn.dropzone.model.AuthModel;
@@ -385,5 +391,28 @@ public class Util {
 			type = OSType.OTHER;
 		}
 		return type;
+	}
+
+	/**
+	 * Adds the given number of days to today and returns the new date
+	 * 
+	 * @param days
+	 * @return
+	 */
+	public static Date getDaysFromNow(int days) {
+		LocalDate localDate = LocalDate.now().plus(days, ChronoUnit.DAYS);
+		Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		return date;
+
+	}
+	
+	/**
+	 * Returns the date in the format(2015-12-31T23:59:00)
+	 * @param date
+	 * @return
+	 */
+	public static String formatExpirationDate(Date date) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		return sdf.format(date);
 	}
 }

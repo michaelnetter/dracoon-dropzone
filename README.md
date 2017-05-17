@@ -19,7 +19,7 @@ Simply drag one or more files you'd like to share on the action in your Dropzone
 
 ![enter image description here](http://michaelnetter.com/sds-dropzone/github_screenshot.png)
 
-By holding the Control Key while releasing your files, you can set a password for the download link. Please keep in mind that password policies might be enforced.
+By holding the Control Key while releasing your files, you can set a password for the download link. Please keep in mind that password policies might be enforced. Holding the ALT key while releasing your files will let the file and download link expire in 14 days.
 
 ## Compile
 Prerequisites: Java JDK 8, Maven 3.x

@@ -15,14 +15,15 @@ public class UploadEvent extends EventObject {
 	private static final long serialVersionUID = 1L;
 	private Status status;
 	private long nodeId;
-	private boolean isPasswordProtected;
+	private boolean isPasswordProtected,isSetExpiration;
 	private String password;
 
-	public UploadEvent(Object source, Status status, long nodeId, boolean isPasswordProtected, String password) {
+	public UploadEvent(Object source, Status status, long nodeId, boolean isPasswordProtected, String password, boolean isSetExpiration) {
 		super(source);
 		this.status = status;
 		this.nodeId = nodeId;
 		this.isPasswordProtected = isPasswordProtected;
+		this.isSetExpiration = isSetExpiration;
 		this.password = password;
 	}
 
@@ -36,6 +37,10 @@ public class UploadEvent extends EventObject {
 
 	public boolean isPasswordProtected() {
 		return isPasswordProtected;
+	}
+	
+	public boolean isSetExpiration() {
+		return isSetExpiration;
 	}
 
 	public String getPassword() {

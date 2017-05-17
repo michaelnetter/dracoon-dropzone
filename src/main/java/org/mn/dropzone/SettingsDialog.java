@@ -45,7 +45,7 @@ public class SettingsDialog extends JPanel {
 	private JComboBox<ScreenModel> screenBox;
 	private JComboBox<AuthModel> authBox;
 	private JComboBox<ScreenPosition> hotCornerBox;
-	private JCheckBox useMasterPasswordInput;
+	private JCheckBox useMasterPasswordInput, darkIconInput;
 	private JPasswordField masterPwdInput, pwdInput;
 	private JLabel masterPwdLabel;
 
@@ -81,6 +81,10 @@ public class SettingsDialog extends JPanel {
 			useMasterPasswordInput.setSelected(true);
 			setMasterPwdInputEnabled(true);
 		}
+		else{
+			useMasterPasswordInput.setSelected(false);
+			setMasterPwdInputEnabled(false);
+		}
 
 		if (cfg.getMasterPassword() != null) {
 			masterPwdInput.setText(cfg.getMasterPassword());
@@ -108,6 +112,13 @@ public class SettingsDialog extends JPanel {
 			authBoxModel.setSelectedItem(authModel);
 			authBox.setModel(authBoxModel);
 		}
+		
+		if (cfg.isUseDarkIcon()) {
+			darkIconInput.setSelected(true);
+		}
+		else{
+			darkIconInput.setSelected(false);
+		}
 
 		// set screen position
 		ScreenPosition pos = Util.getScreenPosition(cfg.getScreenPositionId());
@@ -125,38 +136,47 @@ public class SettingsDialog extends JPanel {
 		main.setLayout(new BoxLayout(main, BoxLayout.Y_AXIS));
 
 		// Create and populate the panel.
-		JPanel hotCorners = new JPanel(new SpringLayout());
+		JPanel generalSettingsPanel = new JPanel(new SpringLayout());
 
 		MatteBorder mb = new MatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY);
 		TitledBorder tb = new TitledBorder(mb, I18n.get("settings.hotcornertitle"), TitledBorder.LEFT,
 				TitledBorder.DEFAULT_POSITION);
-		hotCorners.setBorder(tb);
+		generalSettingsPanel.setBorder(tb);
 
 		JLabel cornerLabel = new JLabel(I18n.get("settings.hotcorner"), JLabel.TRAILING);
-		hotCorners.add(cornerLabel);
+		generalSettingsPanel.add(cornerLabel);
 		hotCornerBox = new JComboBox<>();
 		cornerLabel.setLabelFor(hotCornerBox);
-		hotCorners.add(hotCornerBox);
+		generalSettingsPanel.add(hotCornerBox);
 		DefaultComboBoxModel<ScreenPosition> cornerBoxModel = new DefaultComboBoxModel<ScreenPosition>(
 				(ScreenPosition[]) Util.getScreenPositions());
 		hotCornerBox.setModel(cornerBoxModel);
 
 		JLabel userLabel = new JLabel(I18n.get("settings.hotcornerscreen"), JLabel.TRAILING);
-		hotCorners.add(userLabel);
+		generalSettingsPanel.add(userLabel);
 		screenBox = new JComboBox<>();
 
 		DefaultComboBoxModel<ScreenModel> screenBoxModel = new DefaultComboBoxModel<ScreenModel>(
 				(ScreenModel[]) Util.getScreens());
 		screenBox.setModel(screenBoxModel);
+		generalSettingsPanel.add(screenBox);
+		
 
-		hotCorners.add(screenBox);
+		JLabel darkIconLabel = new JLabel(I18n.get("settings.darkicon"), JLabel.TRAILING);
+		generalSettingsPanel.add(darkIconLabel);
+		darkIconInput = new JCheckBox();
+		darkIconInput.setSelected(false);
+		darkIconLabel.setLabelFor(darkIconInput);
+		generalSettingsPanel.add(darkIconInput);
+
+		
 
 		// Lay out the panel.
-		SwingUtil.makeCompactGrid(hotCorners, 2, 2, // rows, cols
+		SwingUtil.makeCompactGrid(generalSettingsPanel, 3, 2, // rows, cols
 				6, 6, // initX, initY
 				6, 6); // xPad, yPad
 
-		main.add(hotCorners);
+		main.add(generalSettingsPanel);
 		return main;
 	}
 
@@ -292,6 +312,10 @@ public class SettingsDialog extends JPanel {
 
 	public boolean isMasterPwdEnabled() {
 		return useMasterPasswordInput.isSelected();
+	}
+	
+	public boolean isUseDarkIcon() {
+		return darkIconInput.isSelected();
 	}
 
 	public JTextField getServerUrl() {

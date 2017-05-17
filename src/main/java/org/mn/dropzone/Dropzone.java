@@ -37,6 +37,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * TODO: - mac wait for permission to access keyboard listener - mac check if
+ * settings only apply after restart - alt upload with exiry date
+ * 
+ * 
  * Dropzone for SDS
  * 
  * @author Michael Netter
@@ -71,10 +75,10 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 			JPanel panel = new JPanel(new BorderLayout());
 			JPasswordField pf = new JPasswordField();
 			panel.setBorder(new EmptyBorder(0, 10, 0, 10));
-			panel.add(pf, BorderLayout.NORTH);		
+			panel.add(pf, BorderLayout.NORTH);
 			JFrame frame = new JFrame();
 			frame.setAlwaysOnTop(true);
-			
+
 			int option = JOptionPane.showConfirmDialog(frame, panel, I18n.get("main.start.requestmasterpwd"),
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			frame.dispose();
@@ -90,9 +94,15 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	 * Init Swing UI
 	 */
 	private void initUI() {
-		URL url = Dropzone.class.getResource("/images/kopie.png");
+		URL url = null;
+		if (ConfigIO.getInstance().isUseDarkIcon()) {
+			url = Dropzone.class.getResource("/images/sds_logo_dark.png");
+		} else {
+			url = Dropzone.class.getResource("/images/sds_logo_light.png");
+
+		}
 		if (Util.getOSType() == OSType.MACOS) {
-			url = Dropzone.class.getResource("/images/sds_logo_mac.png");
+
 		}
 
 		trayIcon = new TrayIcon(Toolkit.getDefaultToolkit().getImage(url), I18n.get("tray.appname"),
@@ -113,22 +123,31 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	 */
 	@Override
 	public void handleDragEvent(DropzoneDragEvent e) {
+		final Dropzone dropzone = this;
 		List<File> files = e.getEvent().getDragboard().getFiles();
-		String pwd = "";
-		boolean isPwdProtected = e.isAskForPassword();
-		if (e.isAskForPassword()) {
-			pwd = showPasswordDialog();
-			if (pwd == null) {
-				isPwdProtected = false;
-			}
-		}
 
-		if (files != null && !files.isEmpty()) {
-			FileUploadTask uploadTask = new FileUploadTask(files, isPwdProtected, pwd);
-			uploadTask.addUploadEventListener(this);
-			Thread thread = new Thread(uploadTask);
-			thread.start();
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				String pwd = "";
+				boolean isPwdProtected = e.isAskForPassword();
+				boolean isSetExpiration = e.isSetExpiration();
+				
+				if (e.isAskForPassword()) {
+					pwd = showPasswordDialog();
+					if (pwd == null) {
+						isPwdProtected = false;
+					}
+				}
+
+				if (files != null && !files.isEmpty()) {
+					FileUploadTask uploadTask = new FileUploadTask(files, isPwdProtected, pwd,isSetExpiration);
+					uploadTask.addUploadEventListener(dropzone);
+					Thread thread = new Thread(uploadTask);
+					thread.start();
+				}
+			}
+		});
 	}
 
 	/**
@@ -138,15 +157,17 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	public void handleUploadEvent(UploadEvent e) {
 		// show error message if upload was unsuccessful
 		if (e.getStatus() == Status.FAILED || e.getNodeId() < 0) {
-			dzPopOver.showMessage(I18n.get("dropzone.uploaderror"), Constants.ICON_ERROR, DropzonePopOver.TEXT_COLOR_DEFAULT,
-					DropzonePopOver.POPOVER_TEXT_SIZE_DEFAULT);
+			dzPopOver.showMessage(I18n.get("dropzone.uploaderror"), Constants.ICON_ERROR,
+					DropzonePopOver.TEXT_COLOR_DEFAULT, DropzonePopOver.POPOVER_TEXT_SIZE_DEFAULT);
+			return;
 		}
 
+		boolean isSetExpiration = e.isSetExpiration();
 		boolean pwdProtected = e.isPasswordProtected();
 		String pwd = e.getPassword();
 
 		long nodeId = e.getNodeId();
-		CreateSharelinkTask sharelinkTask = new CreateSharelinkTask(nodeId, pwdProtected, pwd);
+		CreateSharelinkTask sharelinkTask = new CreateSharelinkTask(nodeId, pwdProtected, pwd,isSetExpiration);
 		sharelinkTask.addSharelinkEventListener(this);
 		Thread thread = new Thread(sharelinkTask);
 		thread.start();
@@ -161,6 +182,7 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		if (e.getStatus() == Status.FAILED || e.getSharelink() == null) {
 			dzPopOver.showMessage(I18n.get("dropzone.sharelinkerror"), Constants.ICON_ERROR,
 					DropzonePopOver.TEXT_COLOR_DEFAULT, DropzonePopOver.POPOVER_TEXT_SIZE_DEFAULT);
+			return;
 		}
 
 		DownloadShare sharelink = e.getSharelink();
@@ -173,8 +195,8 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		clpbrd.setContents(stringSelection, null);
 
 		// show success message
-		dzPopOver.showMessage(I18n.get("dropzone.sharelinkcreated"), Constants.ICON_OK, DropzonePopOver.TEXT_COLOR_DEFAULT,
-				DropzonePopOver.POPOVER_TEXT_SIZE_DEFAULT);
+		dzPopOver.showMessage(I18n.get("dropzone.sharelinkcreated"), Constants.ICON_OK,
+				DropzonePopOver.TEXT_COLOR_DEFAULT, DropzonePopOver.POPOVER_TEXT_SIZE_DEFAULT);
 	}
 
 	/**
@@ -184,10 +206,11 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		JPanel panel = new JPanel(new BorderLayout());
 		JPasswordField pf = new JPasswordField();
 		panel.setBorder(new EmptyBorder(0, 10, 0, 10));
-		panel.add(pf, BorderLayout.NORTH);		
+		panel.add(pf, BorderLayout.NORTH);
 		JFrame frame = new JFrame();
 		frame.setAlwaysOnTop(true);
-		
+		pf.requestFocus();
+
 		int option = JOptionPane.showConfirmDialog(frame, panel, I18n.get("main.start.sharelinkpwd"),
 				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		frame.dispose();
