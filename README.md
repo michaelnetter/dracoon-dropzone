@@ -6,7 +6,7 @@ A cross-platform dropzone to easily share files with *SSP Secure Data Space*
 
 [Version 1.0 for Mac OS](https://github.com/michaelnetter/sds-dropzone/releases/download/1.0/dropzone-client-1.0.0.dmg)
 
-[Version 1.0 for all platforms (Windows, Mac Os, Linux)](https://github.com/michaelnetter/sds-dropzone/releases/download/1.0/Dropzone-1.0.0.jar)
+[Version 1.0 for all platforms (jar file) (Windows, Mac OS, Linux)](https://github.com/michaelnetter/sds-dropzone/releases/download/1.0/Dropzone-1.0.0.jar)
 
 
 ## Installation
