@@ -12,10 +12,10 @@ Execute the application and right-click on the tray icon to setup your account.
 To start with Windows ([more details](http://tunecomp.net/add-app-to-startup/)):
 
  1. Press the following key combination: Win+R
- 2. Enter: shell:startup and press enter
+ 2. Enter shell:startup and press enter
  3. Make a shortcut to sds-dropzone in the opening folder
 
-To start with Mac OS([more details](https://support.apple.com/kb/PH25590?locale=en_US)):
+To start with Mac OS ([more details](https://support.apple.com/kb/PH25590?locale=en_US)):
 
  1. Open system preferences
  2. Choose Users & Groups and select your account
