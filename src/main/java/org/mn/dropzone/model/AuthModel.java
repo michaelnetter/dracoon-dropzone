@@ -10,7 +10,7 @@ package org.mn.dropzone.model;
  */
 public class AuthModel {
 	public enum Type {
-		ACTIVE_DIRECTORY("ad"), E_MAIL("sql"), RADIUS("radius");
+		ACTIVE_DIRECTORY("active_directory"), E_MAIL("sql"), RADIUS("radius");
 		
 		String id;
 		Type(String id){
