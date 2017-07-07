@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.mn.dropzone</groupId>
 	<artifactId>dropzone-client</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 
 	<name>Dropzone</name>
 	<description>A dropzone client for secure data space </description>
