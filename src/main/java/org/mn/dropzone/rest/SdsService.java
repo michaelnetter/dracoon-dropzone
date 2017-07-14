@@ -17,7 +17,7 @@ import org.mn.dropzone.rest.model.NodeList;
 import org.mn.dropzone.rest.model.SoftwareVersionData;
 import org.mn.dropzone.rest.model.UserAccount;
 
-import okhttp3.RequestBody;
+import okhttp3.MultipartBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -86,7 +86,7 @@ public interface SdsService {
     @POST(API_PATH + "/nodes/files/uploads/{upload_id}")
     Call<Void> uploadFile(@Header(AUTHORIZATION_HEADER) String token,
                           @Path("upload_id") String uploadId,
-                          @Part("file\"; filename=\"name.extension") RequestBody file);
+                          @Part MultipartBody.Part file);
 
     @PUT(API_PATH + "/nodes/files/uploads/{upload_id}")
     Call<Node> completeFileUpload(@Header(AUTHORIZATION_HEADER) String token,

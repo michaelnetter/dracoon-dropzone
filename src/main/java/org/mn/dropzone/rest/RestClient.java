@@ -9,11 +9,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -316,12 +312,15 @@ public class RestClient {
 	 */
 	public void uploadFile(String token, String uploadId, File file) throws IOException {
 
-		RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-				.addFormDataPart(file.getAbsolutePath(), file.getName(),
-						RequestBody.create(MediaType.parse("application/octet-stream"), file))
-				.build();
+//		RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+//				.addFormDataPart(file.getAbsolutePath(), file.getName(),
+//						RequestBody.create(MediaType.parse("application/octet-stream"), file))
+//				.build();
 
-		Call<Void> call = sdsService.uploadFile(token, uploadId, requestBody);
+		MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(),
+				RequestBody.create(MediaType.parse("application/octet-stream"), file));
+
+		Call<Void> call = sdsService.uploadFile(token, uploadId, filePart);
 		call.execute();
 	}
 
