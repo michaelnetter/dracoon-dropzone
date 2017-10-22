@@ -15,4 +15,6 @@ public class CreateDownloadShareRequest {
     public String mailRecipients;
     public String mailSubject;
     public String mailBody;
+    public UserKeyPairContainer keyPair;
+    public FileKeyContainer fileKey;
 }

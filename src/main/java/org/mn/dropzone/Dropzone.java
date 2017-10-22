@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import org.mn.dropzone.Constants.OSType;
+import org.mn.dropzone.crypto.model.PlainFileKey;
 import org.mn.dropzone.eventlistener.DropzoneDragEvent;
 import org.mn.dropzone.eventlistener.DropzoneDragEventListener;
 import org.mn.dropzone.eventlistener.SharelinkEvent;
@@ -129,19 +130,11 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 		SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				String pwd = "";
 				boolean isPwdProtected = e.isAskForPassword();
 				boolean isSetExpiration = e.isSetExpiration();
-				
-				if (e.isAskForPassword()) {
-					pwd = showPasswordDialog();
-					if (pwd == null) {
-						isPwdProtected = false;
-					}
-				}
 
 				if (files != null && !files.isEmpty()) {
-					FileUploadTask uploadTask = new FileUploadTask(files, isPwdProtected, pwd,isSetExpiration);
+					FileUploadTask uploadTask = new FileUploadTask(files, isPwdProtected, isSetExpiration);
 					uploadTask.addUploadEventListener(dropzone);
 					Thread thread = new Thread(uploadTask);
 					thread.start();
@@ -155,6 +148,8 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 	 */
 	@Override
 	public void handleUploadEvent(UploadEvent e) {
+		final Dropzone dropzone = this;
+
 		// show error message if upload was unsuccessful
 		if (e.getStatus() == Status.FAILED || e.getNodeId() < 0) {
 			dzPopOver.showMessage(I18n.get("dropzone.uploaderror"), Constants.ICON_ERROR,
@@ -164,13 +159,25 @@ public class Dropzone implements DropzoneDragEventListener, UploadEventListener,
 
 		boolean isSetExpiration = e.isSetExpiration();
 		boolean pwdProtected = e.isPasswordProtected();
-		String pwd = e.getPassword();
+		boolean isEncryptedRoom = e.isEncryptedRoom();
 
-		long nodeId = e.getNodeId();
-		CreateSharelinkTask sharelinkTask = new CreateSharelinkTask(nodeId, pwdProtected, pwd,isSetExpiration);
-		sharelinkTask.addSharelinkEventListener(this);
-		Thread thread = new Thread(sharelinkTask);
-		thread.start();
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				String pwd = "";
+				if (pwdProtected || isEncryptedRoom) {
+					pwd = showPasswordDialog();
+				}
+				PlainFileKey plainFileKey = e.getPlainFileKey();
+
+				long nodeId = e.getNodeId();
+				CreateSharelinkTask sharelinkTask = new CreateSharelinkTask(nodeId, pwdProtected, pwd, isSetExpiration,
+						plainFileKey);
+				sharelinkTask.addSharelinkEventListener(dropzone);
+				Thread thread = new Thread(sharelinkTask);
+				thread.start();
+			}
+		});
 	}
 
 	/**

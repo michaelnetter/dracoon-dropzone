@@ -279,15 +279,12 @@ public class SettingsDialog extends JPanel {
 		infoWrapperPanel.setLayout(new BoxLayout(infoWrapperPanel, BoxLayout.Y_AXIS));
 
 		JPanel topSpacerPanel = new JPanel();
-		topSpacerPanel.setBackground(new Color(255, 243, 179));
 
 		JPanel bottomSpacerPanel = new JPanel();
-		bottomSpacerPanel.setBackground(new Color(255, 243, 179));
 
 		JPanel infoTextPanel = new JPanel(new BorderLayout());
 		infoTextPanel.setBorder(new EmptyBorder(0, 10, 10, 0));
 		infoTextPanel.setPreferredSize(getPreferredSize(s, true, 400));
-		infoTextPanel.setBackground(new Color(255, 243, 179));
 		infoTextPanel.add(area, BorderLayout.NORTH);
 
 		infoWrapperPanel.add(topSpacerPanel);

@@ -19,6 +19,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import org.mn.dropzone.Constants;
+import org.mn.dropzone.NodeType;
 import org.mn.dropzone.rest.model.AuthToken;
 import org.mn.dropzone.rest.model.CompleteFileUploadRequest;
 import org.mn.dropzone.rest.model.CreateDownloadShareRequest;
@@ -27,11 +28,16 @@ import org.mn.dropzone.rest.model.CreateFolderRequest;
 import org.mn.dropzone.rest.model.CreateRoomRequest;
 import org.mn.dropzone.rest.model.DownloadShare;
 import org.mn.dropzone.rest.model.Expiration;
+import org.mn.dropzone.rest.model.FileKeyContainer;
+import org.mn.dropzone.rest.model.FileKeyContainerList;
 import org.mn.dropzone.rest.model.FileUpload;
 import org.mn.dropzone.rest.model.LoginRequest;
+import org.mn.dropzone.rest.model.MissingKeys;
 import org.mn.dropzone.rest.model.Node;
 import org.mn.dropzone.rest.model.NodeList;
 import org.mn.dropzone.rest.model.UserAccount;
+import org.mn.dropzone.rest.model.UserKeyPairContainer;
+import org.mn.dropzone.rest.model.UserPublicKeyContainer;
 import org.mn.dropzone.util.ConfigIO;
 import org.mn.dropzone.util.TLSSocketFactory;
 import org.mn.dropzone.util.Util;
@@ -143,6 +149,32 @@ public class RestClient {
 	}
 
 	/**
+	 * Get the roomId of the current path
+	 * 
+	 * @param token
+	 * @param nodeId
+	 * @return
+	 * @throws IOException
+	 */
+	public long getParentRoomId(String token, long nodeId) throws IOException {
+		Call<Node> nodeCall = sdsService.getNode(token, nodeId);
+
+		Response<Node> response = (Response<Node>) nodeCall.execute();
+
+		// If an error occurred: Abort
+		if (!response.isSuccessful()) {
+			return -1;
+		} else {
+			// save auth token in config object
+			if (response.body().type == NodeType.ROOM) {
+				return nodeId;
+			} else {
+				return getParentRoomId(token, response.body().parentId);
+			}
+		}
+	}
+
+	/**
 	 * Returns nodeId for the given storage path
 	 * 
 	 * @return
@@ -218,6 +250,23 @@ public class RestClient {
 		account = response.body();
 
 		return account;
+	}
+
+	/**
+	 * Get missing FileKeys for given fileId
+	 * 
+	 * @param token
+	 * @return
+	 * @throws IOException
+	 */
+	public MissingKeys getMissingFileKeys(String token, long fileId) throws IOException {
+		MissingKeys missingKeys;
+		Call<MissingKeys> call = sdsService.getMissingFileKeys(token, null, fileId, null, null, null, 3);
+
+		Response<MissingKeys> response = call.execute();
+		missingKeys = response.body();
+
+		return missingKeys;
 	}
 
 	/**
@@ -312,10 +361,12 @@ public class RestClient {
 	 */
 	public void uploadFile(String token, String uploadId, File file) throws IOException {
 
-//		RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
-//				.addFormDataPart(file.getAbsolutePath(), file.getName(),
-//						RequestBody.create(MediaType.parse("application/octet-stream"), file))
-//				.build();
+		// RequestBody requestBody = new
+		// MultipartBody.Builder().setType(MultipartBody.FORM)
+		// .addFormDataPart(file.getAbsolutePath(), file.getName(),
+		// RequestBody.create(MediaType.parse("application/octet-stream"),
+		// file))
+		// .build();
 
 		MultipartBody.Part filePart = MultipartBody.Part.createFormData("file", file.getName(),
 				RequestBody.create(MediaType.parse("application/octet-stream"), file));
@@ -333,10 +384,13 @@ public class RestClient {
 	 * @return
 	 * @throws IOException
 	 */
-	public Node completeUpload(String token, String uploadId, File file) throws IOException {
+	public Node completeUpload(String token, String uploadId, File file, FileKeyContainer fileKey) throws IOException {
 		CompleteFileUploadRequest cfur = new CompleteFileUploadRequest();
 		cfur.fileName = file.getName();
 		cfur.resolutionStrategy = RESOLUTION_STRATEGY;
+		if (fileKey != null) {
+			cfur.fileKey = fileKey;
+		}
 
 		Call<Node> call = sdsService.completeFileUpload(token, uploadId, cfur);
 		Response<Node> response = call.execute();
@@ -351,19 +405,27 @@ public class RestClient {
 	 * @param passwordProtected
 	 * @param password
 	 * @param isSetExpiration
+	 * @param fileKeyContainer
 	 * @return <{@link DownloadShare}
 	 * @throws IOException
 	 */
 	public DownloadShare createSharelink(String token, long nodeId, boolean passwordProtected, String password,
-			boolean isSetExpiration) throws IOException {
+			boolean isSetExpiration, FileKeyContainer fileKeyContainer, UserKeyPairContainer keyPair) throws IOException {
 		CreateDownloadShareRequest request = new CreateDownloadShareRequest();
 		request.nodeId = nodeId;
 		request.notifyCreator = false;
 		request.sendMail = false;
-		if (passwordProtected) {
-			request.password = password;
-		}
 
+		// if sharelink is in an encrypted room
+		if (fileKeyContainer != null) {
+			request.fileKey = fileKeyContainer;
+			request.keyPair = keyPair;
+		} else {
+			if (passwordProtected) {
+				request.password = password;
+			}
+		}
+		
 		if (isSetExpiration) {
 			Expiration expiration = new Expiration();
 
@@ -400,6 +462,31 @@ public class RestClient {
 		nodeList = response.body().items;
 
 		return nodeList;
+	}
+
+	/**
+	 * Returns true if the room of the given nodeId is encrypted
+	 * 
+	 * @param token
+	 * @param nodeId
+	 * @return boolean true if room is encrypted
+	 * @throws IOException
+	 */
+	public boolean isEncryptedRoom(String token, long nodeId) throws IOException {
+		Call<Node> node = sdsService.getNode(token, nodeId);
+		Response<Node> response = node.execute();
+		return response.body().isEncrypted;
+	}
+
+	/**
+	 * Get the public key of the current user
+	 */
+	public UserPublicKeyContainer getUserPublicKey(String token) throws IOException {
+
+		Call<UserKeyPairContainer> call = sdsService.getUserKeyPair(token);
+		Response<UserKeyPairContainer> response = call.execute();
+		UserPublicKeyContainer publicKeyContainer = response.body().publicKeyContainer;
+		return publicKeyContainer;
 	}
 
 	/**
@@ -533,4 +620,5 @@ public class RestClient {
 			return null;
 		}
 	}
+
 }

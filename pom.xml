@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.mn.dropzone</groupId>
-	<artifactId>dropzone-client</artifactId>
-	<version>1.0.2</version>
+	<groupId>org.mn.dracoon</groupId>
+	<artifactId>dracoon-dropzone</artifactId>
+	<version>1.1.0</version>
 
 	<name>Dropzone</name>
 	<description>A dropzone client for secure data space </description>
@@ -15,6 +15,9 @@
 		<mainClass>org.mn.dropzone.Dropzone</mainClass>
 		<copyright>Copyright (c) Michael Netter</copyright>
 		<minJreVersion>1.8.0</minJreVersion>
+		<bouncycastle.version>1.58</bouncycastle.version>
+		<bouncycastle.bcprov.artifactId>bcprov-jdk15on</bouncycastle.bcprov.artifactId>
+		<bouncycastle.bcpkix.artifactId>bcpkix-jdk15on</bouncycastle.bcpkix.artifactId>
 	</properties>
 
 	<dependencies>
@@ -43,13 +46,16 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.56</version>
+			<version>${bouncycastle.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>${bouncycastle.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.squareup.retrofit2</groupId>
 			<artifactId>retrofit</artifactId>
@@ -60,24 +66,16 @@
 			<artifactId>converter-gson</artifactId>
 			<version>2.2.0</version>
 		</dependency>
-
-
-
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>okhttp</artifactId>
 			<version>3.7.0</version>
 		</dependency>
-
-
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.8.0</version>
 		</dependency>
-
-
-
 	</dependencies>
 
 
@@ -98,7 +96,7 @@
 					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<configuration>
-							<finalName>${project.name}-${project.version}</finalName>
+							<finalName>Dropzone</finalName>
 							<archive>
 								<manifest>
 									<mainClass>${mainClass}</mainClass>
@@ -109,6 +107,76 @@
 							</descriptorRefs>
 							<appendAssemblyId>false</appendAssemblyId>
 						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>3.0.2</version>
+						<executions>
+							<execution>
+								<id>copy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bouncycastle</groupId>
+									<artifactId>${bouncycastle.bcprov.artifactId}</artifactId>
+									<version>${bouncycastle.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/lib</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.bouncycastle</groupId>
+									<artifactId>${bouncycastle.bcpkix.artifactId}</artifactId>
+									<version>${bouncycastle.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/lib</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.build.directory}/wars</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>shade</goal>
+								</goals>
+								<configuration>
+									<artifactSet>
+										<excludes>
+											<exclude>org.bouncycastle:*:*:*</exclude>
+										</excludes>
+									</artifactSet>
+									<finalName>Dropzone</finalName>
+									<transformers>
+										<transformer
+											implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+											<manifestEntries>
+												<Main-Class>org.mn.dropzone.Dropzone</Main-Class>
+												<Class-Path>.
+													lib/${bouncycastle.bcprov.artifactId}-${bouncycastle.version}.jar
+													lib/${bouncycastle.bcpkix.artifactId}-${bouncycastle.version}.jar</Class-Path>
+											</manifestEntries>
+										</transformer>
+									</transformers>
+								</configuration>
+							</execution>
+						</executions>
 					</plugin>
 
 
@@ -127,8 +195,8 @@
 								</goals>
 								<configuration>
 									<headerType>gui</headerType>
-									<outfile>target/${project.name}-${project.version}.exe</outfile>
-									<jar>target/${project.name}-${project.version}.jar</jar>
+									<outfile>target/Dropzone.exe</outfile>
+									<jar>target/Dropzone.jar</jar>
 									<!-- if <dontWrapJar>true</dontWrapJar> change to this conf <jar>${project.artifactId}-${project.version}.jar</jar> -->
 									<dontWrapJar>false</dontWrapJar>
 									<errTitle>Error in launch4j plugin</errTitle>
@@ -176,7 +244,7 @@
 					<plugin>
 						<artifactId>maven-assembly-plugin</artifactId>
 						<configuration>
-							<finalName>${project.name}-${project.version}</finalName>
+							<finalName>Dropzone</finalName>
 							<archive>
 								<manifest>
 									<mainClass>${mainClass}</mainClass>
@@ -187,6 +255,75 @@
 							</descriptorRefs>
 							<appendAssemblyId>false</appendAssemblyId>
 						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<version>3.0.2</version>
+						<executions>
+							<execution>
+								<id>copy</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.bouncycastle</groupId>
+									<artifactId>${bouncycastle.bcprov.artifactId}</artifactId>
+									<version>${bouncycastle.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/lib</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.bouncycastle</groupId>
+									<artifactId>${bouncycastle.bcpkix.artifactId}</artifactId>
+									<version>${bouncycastle.version}</version>
+									<type>jar</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/lib</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.build.directory}/wars</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>shade</goal>
+								</goals>
+								<configuration>
+									<artifactSet>
+										<excludes>
+											<exclude>org.bouncycastle:*:*:*</exclude>
+										</excludes>
+									</artifactSet>
+									<finalName>Dropzone</finalName>
+									<transformers>
+										<transformer
+											implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+											<manifestEntries>
+												<Main-Class>org.mn.dropzone.Dropzone</Main-Class>
+												<Class-Path>.
+													lib/${bouncycastle.bcprov.artifactId}-${bouncycastle.version}.jar
+													lib/${bouncycastle.bcpkix.artifactId}-${bouncycastle.version}.jar</Class-Path>
+											</manifestEntries>
+										</transformer>
+									</transformers>
+								</configuration>
+							</execution>
+						</executions>
 					</plugin>
 
 					<!-- Use: "mvn clean compile -Pmac package appbundle:bundle" to create 

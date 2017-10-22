@@ -12,10 +12,12 @@ import org.mn.dropzone.rest.model.CreateRoomRequest;
 import org.mn.dropzone.rest.model.DownloadShare;
 import org.mn.dropzone.rest.model.FileUpload;
 import org.mn.dropzone.rest.model.LoginRequest;
+import org.mn.dropzone.rest.model.MissingKeys;
 import org.mn.dropzone.rest.model.Node;
 import org.mn.dropzone.rest.model.NodeList;
 import org.mn.dropzone.rest.model.SoftwareVersionData;
 import org.mn.dropzone.rest.model.UserAccount;
+import org.mn.dropzone.rest.model.UserKeyPairContainer;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
@@ -97,5 +99,15 @@ public interface SdsService {
     @GET(API_PATH + "/user/account")
     Call<UserAccount> getUserAccount(@Header(AUTHORIZATION_HEADER) String token);
 
-
+    @GET(API_PATH + "/user/account/keypair")
+    Call<UserKeyPairContainer> getUserKeyPair(@Header(AUTHORIZATION_HEADER) String token);
+    
+    @GET(API_PATH + "/nodes/missingFileKeys")
+    Call<MissingKeys> getMissingFileKeys(@Header(AUTHORIZATION_HEADER) String token,
+                            @Query("room_id") Long roomId,
+                            @Query("file_id") Long fileId,
+                            @Query("user_id") Long userId,
+                            @Query("offset") Integer offset,
+                            @Query("filter") String filter,
+                            @Query("limit") Integer limit);
 }
