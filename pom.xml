@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>8.40.12</version>
+			<version>8.40.14</version>
 		</dependency>
 		<dependency>
 			<groupId>org.controlsfx</groupId>
@@ -130,6 +130,7 @@
 									<version>${bouncycastle.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
+									<destFileName>bcprov.jar</destFileName>
 									<outputDirectory>${project.build.directory}/lib</outputDirectory>
 								</artifactItem>
 								<artifactItem>
@@ -138,6 +139,7 @@
 									<version>${bouncycastle.version}</version>
 									<type>jar</type>
 									<overWrite>true</overWrite>
+									<destFileName>bcpkix.jar</destFileName>
 									<outputDirectory>${project.build.directory}/lib</outputDirectory>
 								</artifactItem>
 							</artifactItems>
@@ -168,9 +170,7 @@
 											implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 											<manifestEntries>
 												<Main-Class>org.mn.dropzone.Dropzone</Main-Class>
-												<Class-Path>.
-													lib/${bouncycastle.bcprov.artifactId}-${bouncycastle.version}.jar
-													lib/${bouncycastle.bcpkix.artifactId}-${bouncycastle.version}.jar</Class-Path>
+												<Class-Path>. lib/bcprov.jar lib/bcpkix.jar</Class-Path>
 											</manifestEntries>
 										</transformer>
 									</transformers>
@@ -315,9 +315,10 @@
 											implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 											<manifestEntries>
 												<Main-Class>org.mn.dropzone.Dropzone</Main-Class>
-												<Class-Path>.
+												<Class-Path>. 												
 													lib/${bouncycastle.bcprov.artifactId}-${bouncycastle.version}.jar
-													lib/${bouncycastle.bcpkix.artifactId}-${bouncycastle.version}.jar</Class-Path>
+													lib/${bouncycastle.bcpkix.artifactId}-${bouncycastle.version}.jar
+													</Class-Path>
 											</manifestEntries>
 										</transformer>
 									</transformers>
